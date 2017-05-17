@@ -113,9 +113,70 @@ fun treesum :: "nat tree \<Rightarrow> nat" where
   "treesum Tip = 0"|
   "treesum (Node l x r) = treesum l + x + treesum r"
   
-theorem treelistsum : "treesum t = listsum (contents t)"
+fun listsum :: "nat list \<Rightarrow> nat" where
+  "listsum [] = 0"|
+  "listsum (x # xs) = x + listsum xs" 
+  
+theorem treelistsum : "treesum t = sum_list (contents t)"
   apply (induction t)
-    apply simp
+   apply auto
+  done
+    
+datatype 'a tree2 = 
+  Leaf 'a 
+  | Node "'a tree2" 'a "'a tree2"
+  
+fun mirror2 :: "'a tree2 \<Rightarrow> 'a tree2" where
+  "mirror2 (Leaf a) = Leaf a"|
+  "mirror2 (Node l a r) = Node (mirror2 r) a (mirror2 l)"
+  
+fun pre_order :: "'a tree2 \<Rightarrow> 'a list" where
+  "pre_order (Leaf a) = [a]"|
+  "pre_order (Node l a r) = a # (pre_order l) @ (pre_order r)"
+  
+fun post_order :: "'a tree2 \<Rightarrow> 'a list" where
+  "post_order (Leaf a) = [a]"|
+  "post_order (Node l a r) = post_order l @ post_order r @ [a]"
+  
+theorem pre_post : "pre_order (mirror2 t) = rev (post_order t)"
+  apply (induction t)
+   apply auto
+  done
+    
+fun intersperse :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+  "intersperse a [] = [a]"|
+  "intersperse a (x # xs) = x # a # intersperse a xs"
+  
+theorem mapinter : "map f (intersperse a xs) = intersperse (f a) (map f xs)"
+  apply (induction xs)
+   apply auto
+  done
+    
+fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+  "itrev [] ys = ys"|
+  "itrev (x # xs) ys = itrev xs (x # ys)"
+  
+lemma "itrev xs ys = rev xs @ ys"
+  apply (induction xs arbitrary: ys)
+   apply auto
+  done
+    
+fun itadd :: "nat \<Rightarrow> nat \<Rightarrow> nat" where 
+  "itadd 0 n = n"|
+  "itadd (Suc m) n = itadd m (Suc n)"
+  
+lemma "itadd m n = add m n"
+  apply (induction m arbitrary: n)
+   apply auto
+  done
+    
+    
+  
+  
+    
+    
+    
+    
   
     
     
