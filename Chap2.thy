@@ -243,32 +243,3 @@ theorem "evalp (coeffs e) x = eval e x"
   apply (induction e rule: exp.induct)
     apply (auto simp add: algebra_simps)
   done
-    
-    
-  
-    
-    
-  
-  
-  
-
-    
-  
-    
-    
-    
-  
-  
-    
-    
-    
-    
-  
-    
-    
-    
-
-    
-    
-  
-    
