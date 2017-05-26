@@ -170,6 +170,92 @@ lemma "itadd m n = add m n"
    apply auto
   done
     
+datatype tree0 = 
+  E | 
+  Node tree0 tree0
+  
+fun nodes :: "tree0 => nat" where
+  "nodes E = 0"|
+  "nodes (Node l r) = 1 + nodes l + nodes r"
+  
+fun explode :: "nat \<Rightarrow> tree0 \<Rightarrow> tree0" where
+  "explode 0 t = t"|
+  "explode (Suc n) t = explode n (Node t t)"
+  
+lemma rel : "nodes (explode n t) = 2 ^ n * (nodes t + 1) - 1"
+  apply (induction n arbitrary: t)
+   apply simp
+  apply (simp add : algebra_simps)
+  done
+    
+datatype exp = 
+  Var |
+  Const int | 
+  Add exp exp |
+  Mult exp exp
+  
+fun eval :: "exp \<Rightarrow> int \<Rightarrow> int" where
+  "eval Var t = t"|
+  "eval (Const i) t = i"|
+  "eval (Add e1 e2) t = eval e1 t + eval e2 t"|
+  "eval (Mult e1 e2) t = eval e1 t * eval e2 t"
+  
+fun evalp :: "int list \<Rightarrow> int \<Rightarrow> int" where
+  "evalp [] t = 0"|
+  "evalp (h # ts) t = h + t * (evalp ts t)"
+  
+fun addpoly :: "int list \<Rightarrow> int list \<Rightarrow> int list" where
+  "addpoly [] ys = ys"|
+  "addpoly xs [] = xs"|
+  "addpoly (x # xs) (y # ys) = (x + y) # addpoly xs ys"
+  
+lemma [simp]: "evalp (addpoly xs ys) x = evalp xs x + evalp ys x"
+  apply (induction xs ys rule: addpoly.induct)
+    apply (auto simp add: algebra_simps)
+  done
+
+fun multone :: "int \<Rightarrow> int list \<Rightarrow> int list" where
+  "multone _ [] = []"|
+  "multone c (x # xs) = (c * x) # multone c xs"
+    
+fun multpoly :: "int list \<Rightarrow> int list \<Rightarrow> int list" where
+  "multpoly [] _ = []"|
+  "multpoly (x # xs) ys = addpoly (multone x ys) (0 # multpoly xs ys)"  
+
+fun coeffs :: "exp \<Rightarrow> int list" where
+  "coeffs Var = [0, 1]"|
+  "coeffs (Const i) = [i]"|
+  "coeffs (Add e1 e2) = addpoly (coeffs e1) (coeffs e2)"|
+  "coeffs (Mult e1 e2) = multpoly (coeffs e1) (coeffs e2)"
+  
+lemma [simp] : "evalp (multone c e) x = c * (evalp e x)"
+  apply (induction e)
+   apply (auto simp add: algebra_simps)
+  done
+    
+lemma [simp]: "evalp (multpoly e1 e2) x = evalp e1 x * evalp e2 x"
+  apply (induction e1)
+    apply (auto simp add: algebra_simps)
+  done
+    
+  
+theorem "evalp (coeffs e) x = eval e x"
+  apply (induction e rule: exp.induct)
+    apply (auto simp add: algebra_simps)
+  done
+    
+    
+  
+    
+    
+  
+  
+  
+
+    
+  
+    
+    
     
   
   
