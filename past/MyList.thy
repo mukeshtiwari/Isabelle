@@ -82,10 +82,40 @@ fun intersperse :: "'a \<Rightarrow> 'a List \<Rightarrow> 'a List" where
   "intersperse x (Cons y Nil) = (Cons y Nil)" |
   "intersperse x (Cons y ys) = Cons y (Cons x (intersperse x ys))" 
 
-lemma map_intersperse : "map f (intersperse a xs) = intersperse (f a) xs" 
-  apply (induction xs)
-  apply auto
 
+lemma map_intersperse: "map f (intersperse a xs) = intersperse (f a) (map f xs)"
+  apply (induction xs)
+  subgoal by simp
+  subgoal for x xs (* something like intros in Coq *)
+    apply (cases xs) (* something like case in Coq *)
+     apply simp_all
+    done
+  done
+
+lemma map_intersperse1 : "map f (intersperse a xs) = intersperse (f a) (map f xs)"
+  apply (induction xs rule: intersperse.induct)
+    apply auto  
+  done
+
+lemma map_intersperse3: "map f (intersperse a xs) = intersperse (f a) (map f xs)"
+proof (induction xs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons x xs)
+  then show ?case by (cases xs) simp_all
+qed
+
+fun intercalate :: "'a List \<Rightarrow> ('a List) List \<Rightarrow> 'a List" where
+  "intercalate _ Nil = Nil" |
+  "intercalate x (Cons y Nil) = (Cons y Nil)" |
+  "intercalate x (Cons y ys) = append (append y x) (intercalate x ys)" 
+
+
+
+
+ 
+  
   
   
 
