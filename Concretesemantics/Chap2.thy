@@ -26,9 +26,9 @@ fun app :: "'a clist \<Rightarrow> 'a clist \<Rightarrow> 'a clist" where
  "app Cnil ys = ys" |
  "app (Ccons x xs) ys = Ccons x (app xs ys)" 
 
-fun rev :: "'a clist \<Rightarrow> 'a clist" where
-  "rev Cnil = Cnil" |
-  "rev (Ccons x xs) = app (rev xs) (Ccons x Cnil)" 
+fun revt :: "'a clist \<Rightarrow> 'a clist" where
+  "revt Cnil = Cnil" |
+  "revt (Ccons x xs) = app (revt xs) (Ccons x Cnil)" 
 
 theorem app_nil [simp] : "app xs  Cnil = xs"
   apply (induction xs)
@@ -40,12 +40,12 @@ theorem app_assoc [simp] : "app xs (app ys zs) = app (app xs ys) zs"
    apply auto
   done 
 
-theorem rev_app [simp] : "rev (app xs ys) = app (rev ys) (rev xs)" 
+theorem rev_app [simp] : "revt (app xs ys) = app (revt ys) (revt xs)" 
   apply (induction xs)
    apply auto
   done
 
-theorem rev_rev : "rev (rev xs) = xs"
+theorem rev_rev : "revt (revt xs) = xs"
   apply (induction xs)
    apply auto
   done
@@ -175,6 +175,44 @@ fun mirror2 ::"'a tree2 \<Rightarrow> 'a tree2" where
   "mirror2 (Tip x) = Tip x" |
   "mirror2 (Node x y) = Node (mirror2 y) (mirror2 x)" 
 
+fun pre_order :: "'a tree2 \<Rightarrow> 'a list" where
+ "pre_order (Tip x) = [x]" |
+ "pre_order (Node x y) = pre_order x @ pre_order y"
+
+fun post_order :: "'a tree2 \<Rightarrow> 'a list" where
+ "post_order (Tip x) = [x]" |
+ "post_order (Node x y) = post_order x @ post_order y"
+
+theorem pre_post_tree2 : "pre_order (mirror2 t) = rev (post_order t)"
+proof (induction t)
+  case (Tip x) 
+  then show ?case by simp
+  case (Node x y) 
+  then show ?case by auto
+qed
+
+
+fun intersperse :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+  "intersperse _ [] = []" |
+  "intersperse _ [x] = [x]" |
+  "intersperse t (x # xs) = x # t # intersperse t xs"
+
+theorem map_intersperse : "map f (intersperse a xs) = intersperse (f a) (map f xs)"
+proof (induction xs rule: intersperse.induct)
+  case (1 uu)
+  then show ?case by simp  
+  case (2 uu x) 
+  then show ?case by simp
+  case (3 t x v va) 
+  then show ?case by auto
+qed
+
+
+
+
+
+  
+ 
 
 
 
